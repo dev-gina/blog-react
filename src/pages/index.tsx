@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { useSession } from "@/hooks/useSession";
 import { useAdmin } from "@/hooks/useAdmin";
 import Layout from "@/components/Layout";
-import styles from "@/styles/home.module.css";
+import styles from "@/styles/Home.module.css";
 
 type Post = {
   id: number;
