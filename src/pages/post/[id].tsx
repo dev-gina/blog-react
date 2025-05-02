@@ -23,6 +23,11 @@ type Comment = {
   email?: string;
 };
 
+const buttonPrimary = "inline-flex items-center justify-center rounded-md bg-black text-white px-4 py-2 text-sm hover:bg-neutral-800 transition";
+const buttonDanger = "inline-flex items-center justify-center rounded-md bg-red-500 text-white px-4 py-2 text-sm hover:bg-red-600 transition";
+const buttonSubtle = "text-sm text-neutral-600 underline hover:text-neutral-900 transition";
+const buttonDangerSubtle = "text-sm text-red-500 underline hover:text-red-600 transition";
+
 const PostDetailPage = () => {
   const router = useRouter();
   const { id } = router.query;
@@ -73,9 +78,9 @@ const PostDetailPage = () => {
       router.push("/login");
       return;
     }
-  
+
     if (!confirm("정말 삭제하시겠습니까?")) return;
-  
+
     const { error } = await supabase.from("posts").delete().eq("id", id);
     if (error) {
       toast.error("삭제 실패: " + error.message);
@@ -84,7 +89,7 @@ const PostDetailPage = () => {
       router.push("/");
     }
   };
-  
+
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session || !session.user) {
@@ -92,9 +97,9 @@ const PostDetailPage = () => {
       router.push("/login");
       return;
     }
-  
+
     if (!newComment.trim()) return;
-  
+
     const { error } = await supabase.from("comments").insert({
       content: newComment,
       post_id: Number(id),
@@ -102,7 +107,7 @@ const PostDetailPage = () => {
       parent_id: null,
       email: user?.email,
     });
-  
+
     if (error) {
       toast.error("댓글 작성 실패: " + error.message);
     } else {
@@ -111,7 +116,7 @@ const PostDetailPage = () => {
       await refreshComments();
     }
   };
-  
+
   const handleAddReply = async (e: React.FormEvent, parentId: number) => {
     e.preventDefault();
     if (!session || !session.user) {
@@ -119,9 +124,9 @@ const PostDetailPage = () => {
       router.push("/login");
       return;
     }
-  
+
     if (!replyContent.trim()) return;
-  
+
     const { error } = await supabase.from("comments").insert({
       content: replyContent,
       post_id: Number(id),
@@ -129,7 +134,7 @@ const PostDetailPage = () => {
       parent_id: parentId,
       email: user?.email,
     });
-  
+
     if (error) {
       toast.error("답글 작성 실패: " + error.message);
     } else {
@@ -155,46 +160,23 @@ const PostDetailPage = () => {
             <h1 className="text-2xl font-light tracking-tight">{post.title}</h1>
             {canEdit && (
               <div className="flex gap-2">
-                <button
-                  onClick={() => router.push(`/edit/${post.id}`)}
-                  className="text-sm px-4 py-2 bg-black text-white rounded hover:bg-neutral-800"
-                >
-                  수정
-                </button>
-                <button
-                  onClick={handleDelete}
-                  className="text-sm px-4 py-2 bg-black text-white rounded hover:bg-neutral-800"
-                >
-                  삭제
-                </button>
+                <button onClick={() => router.push(`/edit/${post.id}`)} className={buttonPrimary}>수정</button>
+                <button onClick={handleDelete} className={buttonDanger}>삭제</button>
               </div>
             )}
           </div>
-          <p className="text-sm text-neutral-500">
-            {new Date(post.created_at).toLocaleString()}
-          </p>
-          <div className="whitespace-pre-wrap leading-relaxed text-base text-neutral-800">
-            {post.content}
-          </div>
+          <p className="text-sm text-neutral-500">{new Date(post.created_at).toLocaleString()}</p>
+          <div className="whitespace-pre-wrap leading-relaxed text-base text-neutral-800">{post.content}</div>
         </article>
 
         <section className="space-y-6">
-          <h2 className="text-lg font-light border-b border-neutral-200 pb-2">
-            댓글 {comments.length}개
-          </h2>
+          <h2 className="text-lg font-light border-b border-neutral-200 pb-2">댓글 {comments.length}개</h2>
 
           {session && (
             <form onSubmit={handleAddComment} className="space-y-3">
-              <textarea
-                className="w-full border border-neutral-200 rounded-md px-4 py-3 text-base resize-none focus:outline-none"
-                placeholder="댓글을 입력하세요"
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-              />
+              <textarea className="w-full border border-neutral-200 rounded-md px-4 py-3 text-base resize-none focus:outline-none" placeholder="댓글을 입력하세요" value={newComment} onChange={(e) => setNewComment(e.target.value)} />
               <div className="flex justify-end">
-                <button type="submit" className="text-sm px-4 py-2 bg-black text-white rounded hover:bg-neutral-800">
-                  댓글 작성
-                </button>
+                <button type="submit" className={buttonPrimary}>댓글 작성</button>
               </div>
             </form>
           )}
@@ -207,24 +189,24 @@ const PostDetailPage = () => {
                   {parent.email ?? parent.user_id.slice(0, 6)} • {new Date(parent.created_at).toLocaleString()}
                 </div>
                 <p className="text-base text-neutral-800">{parent.content}</p>
-                <div className="flex justify-end">
-                  <button onClick={() => setReplyToId(parent.id)} className="text-sm text-neutral-600 underline">
-                    답글
-                  </button>
+
+                <div className="flex justify-end items-center gap-2">
+                  <button onClick={() => setReplyToId(parent.id)} className={buttonSubtle}>답글</button>
+                  {(session?.user.id === parent.user_id || isAdmin) && (
+                    <button onClick={async () => {
+                      if (!window.confirm("댓글을 삭제하시겠습니까?")) return;
+                      const { error } = await supabase.from("comments").delete().eq("id", parent.id);
+                      if (error) toast.error("댓글 삭제 실패: " + error.message);
+                      else { toast.success("댓글 삭제 완료!"); refreshComments(); }
+                    }} className={buttonDangerSubtle}>삭제</button>
+                  )}
                 </div>
 
                 {replyToId === parent.id && (
                   <form onSubmit={(e) => handleAddReply(e, parent.id)} className="space-y-2 mt-2">
-                    <textarea
-                      value={replyContent}
-                      onChange={(e) => setReplyContent(e.target.value)}
-                      className="w-full border border-neutral-200 rounded-md px-3 py-2 text-base resize-none focus:outline-none"
-                      placeholder="답글을 입력하세요"
-                    />
+                    <textarea value={replyContent} onChange={(e) => setReplyContent(e.target.value)} className="w-full border border-neutral-200 rounded-md px-3 py-2 text-base resize-none focus:outline-none" placeholder="답글을 입력하세요" />
                     <div className="flex justify-end">
-                      <button type="submit" className="text-sm px-4 py-2 bg-black text-white rounded hover:bg-neutral-800">
-                        답글 작성
-                      </button>
+                      <button type="submit" className={buttonPrimary}>답글 작성</button>
                     </div>
                   </form>
                 )}
@@ -233,8 +215,16 @@ const PostDetailPage = () => {
                   .filter((c) => c.parent_id === parent.id)
                   .map((child) => (
                     <div key={child.id} className="mt-4 ml-4 pl-4 border-l border-neutral-200 space-y-1">
-                      <div className="text-xs text-neutral-500">
-                        {child.email ?? child.user_id.slice(0, 6)} • {new Date(child.created_at).toLocaleString()}
+                      <div className="text-xs text-neutral-500 flex justify-between items-center">
+                        <span>{child.email ?? child.user_id.slice(0, 6)} • {new Date(child.created_at).toLocaleString()}</span>
+                        {(session?.user.id === child.user_id || isAdmin) && (
+                          <button onClick={async () => {
+                            if (!window.confirm("댓글을 삭제하시겠습니까?")) return;
+                            const { error } = await supabase.from("comments").delete().eq("id", child.id);
+                            if (error) toast.error("댓글 삭제 실패: " + error.message);
+                            else { toast.success("댓글 삭제 완료!"); refreshComments(); }
+                          }} className={buttonDangerSubtle}>삭제</button>
+                        )}
                       </div>
                       <p className="text-sm text-neutral-700">{child.content}</p>
                     </div>

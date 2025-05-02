@@ -11,6 +11,7 @@ type Post = {
   title: string;
   content?: string;
   created_at: string;
+  user_id: string; 
 };
 
 export default function Home() {
@@ -24,7 +25,7 @@ export default function Home() {
     const fetchPosts = async () => {
       let query = supabase
         .from("posts")
-        .select("id, title, content, created_at")
+        .select("id, title, content, created_at, user_id") 
         .order("created_at", { ascending: false });
 
       if (searchTerm.trim()) {
@@ -101,14 +102,17 @@ export default function Home() {
                     {new Date(post.created_at).toLocaleString()}
                   </span>
                 </div>
-                {!sessionLoading && isAdmin && (
-                  <button
-                    className={styles.deleteButton}
-                    onClick={() => handleDelete(post.id)}
-                  >
-                    삭제
-                  </button>
-                )}
+
+                {!sessionLoading &&
+                  session &&
+                  (isAdmin || session.user.id === post.user_id) && (
+                    <button
+                      className={styles.deleteButton}
+                      onClick={() => handleDelete(post.id)}
+                    >
+                      삭제
+                    </button>
+                  )}
               </li>
             ))}
           </ul>
