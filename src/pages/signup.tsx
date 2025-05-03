@@ -46,7 +46,7 @@ export default function SignupPage() {
         <form onSubmit={handleSignUp} className="space-y-4">
           <input
             type="text"
-            placeholder="이름 (닉네임)"
+            placeholder="이름(닉네임)"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full border border-neutral-300 px-4 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-black"
