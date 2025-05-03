@@ -23,7 +23,7 @@ export default function AuthCallback() {
         return;
       }
   
-      toast.success("로그인 성공!");
+      toast.success("로그인에 성공했습니다. 반갑습니다!");
       router.replace("/");
     });
   

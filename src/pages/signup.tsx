@@ -15,17 +15,25 @@ export default function SignupPage() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
-    const { error } = await supabase.auth.signUp({ email, password });
-
+  
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name, // 여기에 이름 저장함
+        },
+      },
+    });
+  
     if (error) {
       setError(error.message);
     } else {
-      console.log("선택 입력된 이름:", name);
       alert("가입 확인 메일을 전송했습니다. 이메일을 확인한 후 로그인해주세요.");
       router.replace("/login");
     }
   };
+  
 
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
