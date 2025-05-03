@@ -122,9 +122,9 @@ const PostDetailPage = () => {
       parent_id: parentId,
       email: user?.email,
     });
-    if (error) toast.error("답글 작성 실패: " + error.message);
+    if (error) toast.error("대댓글글 작성 실패: " + error.message);
     else {
-      toast.success("답글 작성 완료!");
+      toast.success("대댓글 작성 완료!");
       setReplyContent("");
       setReplyToId(null);
       await refreshComments();
@@ -134,13 +134,22 @@ const PostDetailPage = () => {
   const handleDeleteComment = async (commentId: number) => {
     const confirmed = window.confirm("댓글을 삭제하시겠습니까?");
     if (!confirmed) return;
+  
+    // 대댓글 삭제
+    await supabase.from("comments").delete().eq("parent_id", commentId);
+  
+    // 그런 다음 부모 댓글 삭제함
     const { error } = await supabase.from("comments").delete().eq("id", commentId);
-    if (error) toast.error("삭제 실패: " + error.message);
-    else {
+  
+    if (error) {
+      toast.error("삭제 실패: " + error.message);
+    } else {
       toast.success("삭제 완료!");
       await refreshComments();
     }
   };
+  
+  
 
   if (pageLoading || loading) return <p className="text-center py-10">로딩 중...</p>;
   if (!post) return <p className="text-center py-10">글을 찾을 수 없습니다.</p>;
@@ -188,7 +197,7 @@ const PostDetailPage = () => {
               <div className="flex justify-between text-sm text-neutral-500">
                 <span>{parent.email ?? parent.user_id.slice(0, 6)} • {new Date(parent.created_at).toLocaleString()}</span>
                 <div className="flex gap-2">
-                  <button onClick={() => setReplyToId(parent.id)} className={buttonStyle}>답글</button>
+                  <button onClick={() => setReplyToId(parent.id)} className={buttonStyle}>댓글</button>
                   {(session?.user.id === parent.user_id || isAdmin) && (
                     <button onClick={() => handleDeleteComment(parent.id)} className={buttonStyle}>삭제</button>
                   )}
@@ -205,7 +214,7 @@ const PostDetailPage = () => {
                     onChange={(e) => setReplyContent(e.target.value)}
                   />
                   <div className="flex justify-end">
-                    <button type="submit" className={buttonStyle}>답글 작성</button>
+                    <button type="submit" className={buttonStyle}>대댓글 작성</button>
                   </div>
                 </form>
               )}
