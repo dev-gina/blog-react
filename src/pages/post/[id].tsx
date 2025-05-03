@@ -122,7 +122,7 @@ const PostDetailPage = () => {
       parent_id: parentId,
       email: user?.email,
     });
-    if (error) toast.error("대댓글글 작성 실패: " + error.message);
+    if (error) toast.error("대댓글 작성 실패: " + error.message);
     else {
       toast.success("대댓글 작성 완료!");
       setReplyContent("");
@@ -151,7 +151,7 @@ const PostDetailPage = () => {
   
   
 
-  if (pageLoading || loading) return <p className="text-center py-10">로딩 중...</p>;
+  if (pageLoading || loading) return <p className="text-center py-10">로딩 중</p>;
   if (!post) return <p className="text-center py-10">글을 찾을 수 없습니다.</p>;
 
   const isAuthor = session?.user?.id === post.user_id;
@@ -209,7 +209,7 @@ const PostDetailPage = () => {
                 <form onSubmit={(e) => handleAddReply(e, parent.id)} className="mt-2 space-y-2">
                   <textarea
                     className={textareaStyle}
-                    placeholder="답글을 입력하세요"
+                    placeholder="댓글을 입력하세요"
                     value={replyContent}
                     onChange={(e) => setReplyContent(e.target.value)}
                   />
