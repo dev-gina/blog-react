@@ -11,29 +11,40 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+  
     const { error } = await supabase.auth.signInWithPassword({ email, password });
+  
+    if (error) {
+      setError("이메일 또는 비밀번호가 올바르지 않습니다.");
+    } else {
+      router.push("/auth/callback"); 
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${location.origin}/auth/callback`,
+      },
+    });
 
     if (error) {
-      setError(error.message);
-    } else {
-      alert("로그인 성공");
-      router.push("/");
+      alert("구글 로그인 실패: " + error.message);
     }
   };
 
   return (
     <Layout>
-      <div className="max-w-3xl mx-auto px-6 pt-12 pb-24">
-        <form
-          onSubmit={handleLogin}
-          className="w-full max-w-sm mx-auto space-y-6"
-        >
-          <h2 className="text-xl font-light tracking-tight text-left">로그인</h2>
+      <div className="max-w-md mx-auto px-6 pt-20 pb-24">
+        <h2 className="text-2xl font-semibold text-left mb-6">로그인</h2>
 
+        <form onSubmit={handleLogin} className="space-y-4">
           <input
             type="email"
             placeholder="이메일"
-            className="w-full border-b border-neutral-300 bg-transparent focus:outline-none text-base py-2"
+            className="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -42,27 +53,38 @@ export default function LoginPage() {
           <input
             type="password"
             placeholder="비밀번호"
-            className="w-full border-b border-neutral-300 bg-transparent focus:outline-none text-base py-2"
+            className="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
 
           {error && (
-            <p className="text-red-500 text-sm text-left">
-              {error}
-            </p>
+            <p className="text-sm text-red-500 text-left">{error}</p>
           )}
 
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              className="px-4 py-2 text-sm bg-black text-white rounded hover:bg-neutral-800 transition"
-            >
-              로그인
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="w-full bg-black text-white py-2 rounded hover:bg-neutral-800 transition"
+          >
+            로그인
+          </button>
         </form>
+
+        <div className="text-center text-sm text-gray-500 my-6">또는</div>
+
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          className="flex items-center justify-center gap-2 w-full py-2 px-4 border border-gray-300 rounded hover:bg-gray-100 transition text-sm font-medium"
+        >
+          <img
+            src="https://www.svgrepo.com/show/475656/google-color.svg"
+            alt="Google"
+            className="w-5 h-5"
+          />
+          Google 계정으로 로그인
+        </button>
       </div>
     </Layout>
   );

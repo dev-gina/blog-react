@@ -11,8 +11,25 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className="min-h-screen flex flex-col bg-white text-black font-sans">
       <header className="border-b border-neutral-200 bg-white sticky top-0 z-50">
         <div className="mx-auto max-w-3xl px-6 py-4 flex justify-between items-center">
-          <h1 className="text-lg font-light tracking-tight font-normal">Blog</h1>
-
+          <h1 className="text-lg font-light tracking-tight font-normal">
+            <Link
+              href="/"
+              className="hover:text-neutral-900 transition-colors hover:underline underline-offset-4"
+            >
+              Blog
+            </Link>
+            
+            {session && (
+              <div className="max-w-2xl mt-1 text-xs text-neutral-400">
+                <div className="text-left">
+                  안녕하세요,{" "}
+                  {session.user.user_metadata?.name
+                    ? `${session.user.user_metadata.name}님`
+                    : `${session.user.email}님`}
+                </div>
+              </div>
+            )}
+          </h1>
 
           <nav className="flex gap-5 text-sm font-normal text-neutral-700">
             <HeaderLink href="/">Home</HeaderLink>
@@ -31,6 +48,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         </div>
       </header>
 
+      {/* 본문 */}
       <main className="flex-grow w-full max-w-3xl mx-auto px-6 py-16">
         {children}
       </main>
