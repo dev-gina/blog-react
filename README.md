@@ -104,7 +104,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 
 - 🔗 **GitHub Repository**: https://github.com/dev-gina/blog-react  
 - 🔗 **Vercel 배포 URL**: https://blog-react-fbf2.vercel.app  
-- 📹 **시연 영상**: *(제출 전 추가 예정)*
+- 📹 **시연 영상**: 이메일 제출 완료
 
 ---
 

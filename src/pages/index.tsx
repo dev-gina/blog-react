@@ -6,12 +6,26 @@ import { useAdmin } from "@/hooks/useAdmin";
 import Layout from "@/components/Layout";
 import styles from "@/styles/Home.module.css";
 
+// 시간 포맷 함수 
+const formatDate = (isoString?: string | null) => {
+  if (!isoString) return "시간 없음";
+  const formatter = new Intl.DateTimeFormat("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return formatter.format(new Date(isoString));
+};
+
 type Post = {
   id: number;
   title: string;
   content?: string;
-  created_at: string;
-  user_id: string; 
+  created_at: string | null;
+  user_id: string;
 };
 
 export default function Home() {
@@ -25,7 +39,7 @@ export default function Home() {
     const fetchPosts = async () => {
       let query = supabase
         .from("posts")
-        .select("id, title, content, created_at, user_id") 
+        .select("id, title, content, created_at, user_id")
         .order("created_at", { ascending: false });
 
       if (searchTerm.trim()) {
@@ -70,7 +84,7 @@ export default function Home() {
     <Layout>
       <div className={styles.container}>
         <div className={styles.headerRow}>
-         <h1 className="text-xl font-bold">공지사항</h1>
+          <h1 className="text-xl font-bold">공지사항</h1>
           {!sessionLoading && isAdmin && (
             <Link href="/write" className={styles.writeButton}>
               글 작성
@@ -85,7 +99,6 @@ export default function Home() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button className={styles.searchButton}>검색</button>
         </div>
 
         {loading ? (
@@ -98,15 +111,14 @@ export default function Home() {
                   <Link href={`/post/${post.id}`} className={styles.postTitle}>
                     {post.title}
                   </Link>
-                  <span className={styles.postMeta}>
-                    {new Date(post.created_at).toLocaleString()}
-                  </span>
+                  <span className={styles.postMeta}>{formatDate(post.created_at)}</span>
                 </div>
 
                 {!sessionLoading &&
                   session &&
                   (isAdmin || session.user.id === post.user_id) && (
                     <button
+                      type="button"
                       className={styles.deleteButton}
                       onClick={() => handleDelete(post.id)}
                     >

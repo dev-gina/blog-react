@@ -6,6 +6,7 @@ import { useAdmin } from "@/hooks/useAdmin";
 import Layout from "@/components/Layout";
 import toast from "react-hot-toast";
 
+
 type Post = {
   id: number;
   title: string;
@@ -23,10 +24,22 @@ type Comment = {
   email?: string;
 };
 
-const buttonStyle =
-  "bg-neutral-700 hover:bg-neutral-600 text-white text-xs px-4 py-1.5 rounded-md transition";
-const textareaStyle =
-  "w-full border border-neutral-300 rounded-md px-4 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-neutral-400";
+// 시간 포맷 추가함
+const formatDate = (isoString?: string | null) => {
+  if (!isoString) return "시간 없음";
+  return new Date(isoString).toLocaleString("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+
+const buttonStyle ="bg-neutral-700 hover:bg-neutral-600 text-white text-xs px-4 py-1.5 rounded-md transition";
+const textareaStyle ="w-full border border-neutral-300 rounded-md px-4 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-neutral-400";
 
 const PostDetailPage = () => {
   const router = useRouter();
@@ -134,22 +147,16 @@ const PostDetailPage = () => {
   const handleDeleteComment = async (commentId: number) => {
     const confirmed = window.confirm("댓글을 삭제하시겠습니까?");
     if (!confirmed) return;
-  
-    // 대댓글 삭제
+
     await supabase.from("comments").delete().eq("parent_id", commentId);
-  
-    // 그런 다음 부모 댓글 삭제함
     const { error } = await supabase.from("comments").delete().eq("id", commentId);
-  
-    if (error) {
-      toast.error("삭제 실패: " + error.message);
-    } else {
+
+    if (error) toast.error("삭제 실패: " + error.message);
+    else {
       toast.success("삭제 완료!");
       await refreshComments();
     }
   };
-  
-  
 
   if (pageLoading || loading) return <p className="text-center py-10">로딩 중</p>;
   if (!post) return <p className="text-center py-10">글을 찾을 수 없습니다.</p>;
@@ -171,7 +178,7 @@ const PostDetailPage = () => {
               </div>
             )}
           </div>
-          <p className="text-sm text-neutral-500">{new Date(post.created_at).toLocaleString()}</p>
+          <p className="text-sm text-neutral-500">{formatDate(post.created_at)}</p>
           <div className="whitespace-pre-wrap text-base leading-relaxed text-neutral-800">{post.content}</div>
         </div>
 
@@ -195,7 +202,7 @@ const PostDetailPage = () => {
           {comments.filter((c) => c.parent_id === null).map((parent) => (
             <div key={parent.id} className="border border-neutral-200 rounded-md p-4 space-y-2 bg-white shadow-sm">
               <div className="flex justify-between text-sm text-neutral-500">
-                <span>{parent.email ?? parent.user_id.slice(0, 6)} • {new Date(parent.created_at).toLocaleString()}</span>
+                <span>{parent.email ?? parent.user_id.slice(0, 6)} • {formatDate(parent.created_at)}</span>
                 <div className="flex gap-2">
                   <button onClick={() => setReplyToId(parent.id)} className={buttonStyle}>댓글</button>
                   {(session?.user.id === parent.user_id || isAdmin) && (
@@ -222,7 +229,7 @@ const PostDetailPage = () => {
               {comments.filter((c) => c.parent_id === parent.id).map((child) => (
                 <div key={child.id} className="ml-6 pl-4 border-l-2 border-neutral-200 space-y-1">
                   <div className="flex justify-between text-xs text-neutral-500">
-                    <span>{child.email ?? child.user_id.slice(0, 6)} • {new Date(child.created_at).toLocaleString()}</span>
+                    <span>{child.email ?? child.user_id.slice(0, 6)} • {formatDate(child.created_at)}</span>
                     {(session?.user.id === child.user_id || isAdmin) && (
                       <button onClick={() => handleDeleteComment(child.id)} className={buttonStyle}>삭제</button>
                     )}
