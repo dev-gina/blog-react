@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "@/lib/supabase";
 import Layout from "@/components/Layout";
+import Link from "next/link";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -77,19 +79,20 @@ export default function LoginPage() {
           onClick={handleGoogleLogin}
           className="flex items-center justify-center gap-2 w-full py-2 border border-neutral-300 rounded-md hover:bg-neutral-100 text-sm"
         >
-          <img
+          <Image
             src="https://www.svgrepo.com/show/475656/google-color.svg"
             alt="Google"
-            className="w-5 h-5"
+            width={20}
+            height={20}
           />
           Google로 로그인
         </button>
 
         <p className="text-center text-sm text-neutral-500 mt-4">
           아직 계정이 없으신가요?{" "}
-          <a href="/signup" className="underline text-black">
+          <Link href="/signup" className="underline text-black">
             회원가입
-          </a>
+          </Link>
         </p>
       </main>
     </Layout>

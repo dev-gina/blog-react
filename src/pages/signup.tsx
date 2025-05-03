@@ -2,11 +2,13 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "@/lib/supabase";
 import Layout from "@/components/Layout";
+import Link from "next/link";
+import Image from "next/image";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState(""); 
+  const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -14,7 +16,7 @@ export default function SignupPage() {
     e.preventDefault();
     setError(null);
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { error } = await supabase.auth.signUp({ email, password });
 
     if (error) {
       setError(error.message);
@@ -84,19 +86,20 @@ export default function SignupPage() {
           onClick={handleGoogleLogin}
           className="flex items-center justify-center gap-2 w-full py-2 border border-neutral-300 rounded-md hover:bg-neutral-100 text-sm"
         >
-          <img
+          <Image
             src="https://www.svgrepo.com/show/475656/google-color.svg"
             alt="Google"
-            className="w-5 h-5"
+            width={20}
+            height={20}
           />
           Google로 가입 / 로그인
         </button>
 
         <p className="text-center text-sm text-neutral-500 mt-4">
           이미 계정이 있으신가요?{" "}
-          <a href="/login" className="underline text-black">
+          <Link href="/login" className="underline text-black">
             로그인
-          </a>
+          </Link>
         </p>
       </main>
     </Layout>
