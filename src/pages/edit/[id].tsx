@@ -58,7 +58,7 @@ export default function EditPostPage() {
     }
   };
 
-  if (loading) return <p className="text-center py-10">로딩 중...</p>;
+  if (loading) return <p className="text-center py-10">로딩 중</p>;
 
   return (
     <Layout>

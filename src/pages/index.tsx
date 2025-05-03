@@ -70,7 +70,7 @@ export default function Home() {
     <Layout>
       <div className={styles.container}>
         <div className={styles.headerRow}>
-          <h1 className={styles.heading}>공지사항</h1>
+         <h1 className="text-xl font-bold">공지사항</h1>
           {!sessionLoading && isAdmin && (
             <Link href="/write" className={styles.writeButton}>
               글 작성
