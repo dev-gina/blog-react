@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 
 export default function AuthCallback() {
   const router = useRouter();
-  const hasHandledRef = useRef(false); // 중복 실행 방지시키기
+  const hasHandledRef = useRef(false); // 중복 실행 방지
 
   useEffect(() => {
     const {
