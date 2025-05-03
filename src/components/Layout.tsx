@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { ReactNode } from "react";
 import { useSession } from "@/hooks/useSession";
+import { useAdmin } from "@/hooks/useAdmin";
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { session, loading } = useSession();
+  const isAdmin = useAdmin(session);
 
   if (loading) return null;
 
@@ -11,32 +13,26 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className="min-h-screen flex flex-col bg-white text-black font-sans">
       <header className="border-b border-neutral-200 bg-white sticky top-0 z-50">
         <div className="mx-auto max-w-3xl px-6 py-4 flex justify-between items-center">
+          {/* 왼쪽: 제목 */}
           <h1 className="text-lg font-light tracking-tight font-normal">
-            <Link
-              href="/"
-              className="hover:text-neutral-900 transition-colors hover:underline underline-offset-4"
-            >
+            <Link href="/" className="hover:text-neutral-900 transition-colors">
               Blog
             </Link>
-            
-            {session && (
-              <div className="max-w-2xl mt-1 text-xs text-neutral-400">
-                <div className="text-left">
-                  안녕하세요,{" "}
-                  {session.user.user_metadata?.name
-                    ? `${session.user.user_metadata.name}님`
-                    : `${session.user.email}님`}
-                </div>
-              </div>
-            )}
           </h1>
 
-          <nav className="flex gap-5 text-sm font-normal text-neutral-700">
+          {/* 오른쪽: 메뉴 */}
+          <nav className="flex items-center gap-5 text-sm font-normal text-neutral-700">
             <HeaderLink href="/">Home</HeaderLink>
+
             {session ? (
               <>
                 <HeaderLink href="/write">Write</HeaderLink>
                 <HeaderLink href="/logout">Logout</HeaderLink>
+                {isAdmin && (
+                  <span className="text-xs text-white bg-black px-3 py-1.5 rounded ml-2">
+                    관리자
+                  </span>
+                )}
               </>
             ) : (
               <>

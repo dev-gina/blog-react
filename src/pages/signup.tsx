@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/router";
+import { supabase } from "@/lib/supabase";
 import Layout from "@/components/Layout";
 
-export default function SignUpPage() {
+export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState(""); 
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -13,30 +14,14 @@ export default function SignUpPage() {
     e.preventDefault();
     setError(null);
 
-    try {
-      // 이메일 중복 확인
-      const res = await fetch(`/api/check-user?email=${email}`);
-      const data = await res.json();
+    const { data, error } = await supabase.auth.signUp({ email, password });
 
-      if (data.exists) {
-        if (data.provider === "google") {
-          setError("이 이메일은 Google 계정으로 가입되어 있습니다. Google 로그인을 이용해주세요.");
-        } else {
-          setError("이미 가입된 이메일입니다. 로그인 해주세요.");
-        }
-        return;
-      }
-
-      const { error } = await supabase.auth.signUp({ email, password });
-
-      if (error) {
-        setError(error.message);
-      } else {
-        // ✅ 회원가입 성공 → 로그인 페이지로 이동
-        router.push("/login");
-      }
-    } catch {
-      setError("회원가입 중 오류가 발생했습니다.");
+    if (error) {
+      setError(error.message);
+    } else {
+      console.log("선택 입력된 이름:", name);
+      alert("가입 확인 메일을 전송했습니다. 이메일을 확인한 후 로그인해주세요.");
+      router.replace("/login");
     }
   };
 
@@ -55,55 +40,65 @@ export default function SignUpPage() {
 
   return (
     <Layout>
-      <div className="max-w-md mx-auto px-6 pt-20 pb-24">
-        <h2 className="text-2xl font-semibold text-left mb-6">회원가입</h2>
+      <main className="max-w-md mx-auto px-6 pt-16 pb-24 space-y-8 text-black">
+        <h2 className="text-2xl font-light text-center">회원가입</h2>
 
         <form onSubmit={handleSignUp} className="space-y-4">
           <input
+            type="text"
+            placeholder="이름 (닉네임)"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full border border-neutral-300 px-4 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-black"
+          />
+          <input
             type="email"
             placeholder="이메일"
-            className="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className="w-full border border-neutral-300 px-4 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-black"
             required
           />
-
           <input
             type="password"
             placeholder="비밀번호"
-            className="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className="w-full border border-neutral-300 px-4 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-black"
             required
           />
 
-          {error && (
-            <p className="text-sm text-red-500 text-left">{error}</p>
-          )}
+          {error && <p className="text-sm text-red-500">{error}</p>}
 
           <button
             type="submit"
-            className="w-full bg-black text-white py-2 rounded hover:bg-neutral-800 transition"
+            className="w-full py-2 bg-black text-white text-sm rounded-md hover:bg-neutral-800"
           >
             가입하기
           </button>
         </form>
 
-        <div className="text-center text-sm text-gray-500 my-6">또는</div>
+        <div className="text-center text-sm text-neutral-500">또는</div>
 
         <button
-          type="button"
           onClick={handleGoogleLogin}
-          className="flex items-center justify-center gap-2 w-full py-2 px-4 border border-gray-300 rounded hover:bg-gray-100 transition text-sm font-medium"
+          className="flex items-center justify-center gap-2 w-full py-2 border border-neutral-300 rounded-md hover:bg-neutral-100 text-sm"
         >
           <img
             src="https://www.svgrepo.com/show/475656/google-color.svg"
             alt="Google"
             className="w-5 h-5"
           />
-          Google 계정으로 가입 / 로그인
+          Google로 가입 / 로그인
         </button>
-      </div>
+
+        <p className="text-center text-sm text-neutral-500 mt-4">
+          이미 계정이 있으신가요?{" "}
+          <a href="/login" className="underline text-black">
+            로그인
+          </a>
+        </p>
+      </main>
     </Layout>
   );
 }

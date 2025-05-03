@@ -1,34 +1,40 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "@/lib/supabase";
+import toast from "react-hot-toast";
 
 export default function AuthCallback() {
   const router = useRouter();
-  const hasHandledRef = useRef(false); // 중복 실행 방지
+  const hasHandledRef = useRef(false);
 
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_, session) => {
       if (hasHandledRef.current || !session) return;
       hasHandledRef.current = true;
 
       const user = session.user;
-      const createdAt = new Date(user.created_at).getTime();
-      const now = Date.now();
-      const isNewUser = now - createdAt < 60_000;
 
-      if (isNewUser) {
-        alert("회원가입이 완료되었습니다! 🎉");
-      } else {
-        alert("로그인 성공!");
+      if (!user.email_confirmed_at) {
+        toast.error("이메일 인증이 필요합니다. 메일함을 확인해주세요.");
+        await supabase.auth.signOut();
+        router.replace("/login");
+        return;
       }
 
-      router.push("/");
+      toast.success("로그인 성공!");
+      router.replace("/");
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  return <p className="text-center mt-20 text-neutral-500">로그인 처리 중입니다</p>;
+  return (
+    <p className="text-center mt-20 text-neutral-500">
+      로그인 처리 중입니다.
+    </p>
+  );
 }

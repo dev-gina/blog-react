@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/router";
+import { supabase } from "@/lib/supabase";
 import Layout from "@/components/Layout";
 
 export default function LoginPage() {
@@ -12,13 +12,16 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-  
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-  
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
     if (error) {
       setError("이메일 또는 비밀번호가 올바르지 않습니다.");
+    } else if (!data.user?.email_confirmed_at) {
+      setError("이메일을 아직 인증하지 않으셨습니다. 메일함을 확인해주세요.");
+      await supabase.auth.signOut();
     } else {
-      router.push("/auth/callback"); 
+      router.push("/");
     }
   };
 
@@ -37,55 +40,58 @@ export default function LoginPage() {
 
   return (
     <Layout>
-      <div className="max-w-md mx-auto px-6 pt-20 pb-24">
-        <h2 className="text-2xl font-semibold text-left mb-6">로그인</h2>
+      <main className="max-w-md mx-auto px-6 pt-16 pb-24 space-y-8 text-black">
+        <h2 className="text-2xl font-light text-center">로그인</h2>
 
         <form onSubmit={handleLogin} className="space-y-4">
           <input
             type="email"
             placeholder="이메일"
-            className="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className="w-full border border-neutral-300 px-4 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-black"
             required
           />
-
           <input
             type="password"
             placeholder="비밀번호"
-            className="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className="w-full border border-neutral-300 px-4 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-black"
             required
           />
 
-          {error && (
-            <p className="text-sm text-red-500 text-left">{error}</p>
-          )}
+          {error && <p className="text-sm text-red-500">{error}</p>}
 
           <button
             type="submit"
-            className="w-full bg-black text-white py-2 rounded hover:bg-neutral-800 transition"
+            className="w-full py-2 bg-black text-white text-sm rounded-md hover:bg-neutral-800"
           >
             로그인
           </button>
         </form>
 
-        <div className="text-center text-sm text-gray-500 my-6">또는</div>
+        <div className="text-center text-sm text-neutral-500">또는</div>
 
         <button
-          type="button"
           onClick={handleGoogleLogin}
-          className="flex items-center justify-center gap-2 w-full py-2 px-4 border border-gray-300 rounded hover:bg-gray-100 transition text-sm font-medium"
+          className="flex items-center justify-center gap-2 w-full py-2 border border-neutral-300 rounded-md hover:bg-neutral-100 text-sm"
         >
           <img
             src="https://www.svgrepo.com/show/475656/google-color.svg"
             alt="Google"
             className="w-5 h-5"
           />
-          Google 계정으로 로그인
+          Google로 로그인
         </button>
-      </div>
+
+        <p className="text-center text-sm text-neutral-500 mt-4">
+          아직 계정이 없으신가요?{" "}
+          <a href="/signup" className="underline text-black">
+            회원가입
+          </a>
+        </p>
+      </main>
     </Layout>
   );
 }

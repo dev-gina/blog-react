@@ -6,7 +6,6 @@ import { useAdmin } from "@/hooks/useAdmin";
 import Layout from "@/components/Layout";
 import styles from "@/styles/Home.module.css";
 
-// 시간 포맷 함수 
 const formatDate = (isoString?: string | null) => {
   if (!isoString) return "시간 없음";
   const formatter = new Intl.DateTimeFormat("ko-KR", {
