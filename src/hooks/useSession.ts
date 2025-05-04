@@ -8,7 +8,7 @@ export function useSession(): { session: Session | null; user: User | null; load
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 현재 세션과 사용자 정보 가져오기
+
     const getSession = async () => {
       const { data: sessionData } = await supabase.auth.getSession();
       const { data: userData } = await supabase.auth.getUser();
@@ -20,7 +20,7 @@ export function useSession(): { session: Session | null; user: User | null; load
 
     getSession();
 
-    // 세션 변화 감지
+
     const { data: listener } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         setSession(session);

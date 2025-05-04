@@ -11,7 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { session, loading } = useSession();
+  const { session } = useSession();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
