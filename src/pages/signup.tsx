@@ -104,7 +104,7 @@ export default function SignupPage() {
             width={20}
             height={20}
           />
-          Google로 가입 / 로그인
+          Google로 로그인
         </button>
 
         <p className="text-center text-sm text-neutral-500 mt-4">
