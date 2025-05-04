@@ -11,7 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { session, loading } = useSession(); // 세션 상태 가져오기
+  const { session, loading } = useSession();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,10 +27,9 @@ export default function LoginPage() {
     }
   };
 
-  // 로그인 후 세션 상태에 따라 페이지 전환
   useEffect(() => {
     if (session) {
-      router.push("/"); // 로그인 상태이면 홈 페이지로 리다이렉션
+      router.push("/");
     }
   }, [session, router]);
 
@@ -38,18 +37,18 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${location.origin}/auth/callback`,
+        redirectTo: `${location.origin}/auth/callback`, 
+        queryParams: {
+          prompt: "select_account",
+        },
       },
     });
-
+  
     if (error) {
       alert("구글 로그인 실패: " + error.message);
     }
   };
-
-  if (loading) {
-    return <div>로딩 중...</div>;
-  }
+  
 
   return (
     <Layout>

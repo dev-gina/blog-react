@@ -40,13 +40,17 @@ export default function SignupPage() {
       provider: "google",
       options: {
         redirectTo: `${location.origin}/auth/callback`,
+        queryParams: {
+          prompt: "select_account", 
+        },
       },
     });
-
+  
     if (error) {
       alert("구글 로그인 실패: " + error.message);
     }
   };
+  
 
   return (
     <Layout>
