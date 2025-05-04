@@ -2,12 +2,20 @@ import Link from "next/link";
 import { ReactNode } from "react";
 import { useSession } from "@/hooks/useSession";
 import { useAdmin } from "@/hooks/useAdmin";
+import { supabase } from "@/lib/supabase"; 
+import { useRouter } from "next/router"; 
 
 export default function Layout({ children }: { children: ReactNode }) {
-  const { session, loading } = useSession();
-  const isAdmin = useAdmin(session);
+  const { session, loading } = useSession(); 
+  const isAdmin = useAdmin(session);  
+  const router = useRouter();  
 
-  if (loading) return null;
+  if (loading) return null; 
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut(); 
+    router.push("/");  
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-black font-sans">
@@ -27,7 +35,14 @@ export default function Layout({ children }: { children: ReactNode }) {
             {session ? (
               <>
                 <HeaderLink href="/write">Write</HeaderLink>
-                <HeaderLink href="/logout">Logout</HeaderLink>
+                {/* 로그아웃 버튼 */}
+                <button
+                  onClick={handleLogout}
+                  className="hover:text-neutral-900 transition-colors"
+                >
+                  Logout
+                </button>
+                {/* 관리자 뱃지 */}
                 {isAdmin && (
                   <span className="text-xs text-white bg-black px-3 py-1.5 rounded ml-2">
                     관리자
