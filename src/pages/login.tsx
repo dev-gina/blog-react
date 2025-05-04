@@ -1,15 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "@/lib/supabase";
 import Layout from "@/components/Layout";
 import Link from "next/link";
 import Image from "next/image";
+import { useSession } from "@/hooks/useSession";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { session, loading } = useSession(); // 세션 상태 가져오기
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,10 +24,15 @@ export default function LoginPage() {
     } else if (!data.user?.email_confirmed_at) {
       setError("이메일을 아직 인증하지 않으셨습니다. 메일함을 확인해주세요.");
       await supabase.auth.signOut();
-    } else {
-      router.push("/");
     }
   };
+
+  // 로그인 후 세션 상태에 따라 페이지 전환
+  useEffect(() => {
+    if (session) {
+      router.push("/"); // 로그인 상태이면 홈 페이지로 리다이렉션
+    }
+  }, [session, router]);
 
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
@@ -39,6 +46,10 @@ export default function LoginPage() {
       alert("구글 로그인 실패: " + error.message);
     }
   };
+
+  if (loading) {
+    return <div>로딩 중...</div>;
+  }
 
   return (
     <Layout>

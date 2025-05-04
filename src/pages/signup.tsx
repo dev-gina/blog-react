@@ -21,7 +21,7 @@ export default function SignupPage() {
       password,
       options: {
         data: {
-          name, // 여기에 이름 저장함
+          name, 
         },
       },
     });
@@ -56,7 +56,7 @@ export default function SignupPage() {
         <form onSubmit={handleSignUp} className="space-y-4">
           <input
             type="text"
-            placeholder="이름(닉네임)"
+            placeholder="이름 (선택)"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full border border-neutral-300 px-4 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-black"
